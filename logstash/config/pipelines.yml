@@ -1,0 +1,6 @@
+- pipeline.id: kafka
+  path.config: "/usr/share/logstash/pipeline/kafka.conf"
+  pipeline.workers: 2
+- pipeline.id: file
+  path.config: "/usr/share/logstash/pipeline/file.conf"
+  queue.type: persisted

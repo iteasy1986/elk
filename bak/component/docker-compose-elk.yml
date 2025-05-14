@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./elasticsearch/data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - elk
+
+  # Logstash
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.13.4
+    container_name: logstash
+    volumes:
+      - ./logstash/config:/usr/share/logstash/config
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+      #- ./logstash/pipelines:/usr/share/logstash/pipelines
+      - ./logstash/data:/usr/share/logstash/data
+      - ./data:/data  # Mount local directory containing CSV files
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    environment:
+      #- LS_JAVA_OPTS=-Xms256m -Xmx256m
+      - LS_JAVA_OPTS=-Xms1g -Xmx1g
+      - log.level=debug
+    depends_on:
+      - elasticsearch
+      # - kafka
+    networks:
+      - elk
+      - kafka
+
+  # Kibana
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.13.4
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./kibana/data:/usr/share/kibana/data
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+networks:
+  kafka:
+    driver: bridge
+  elk:
+    driver: bridge

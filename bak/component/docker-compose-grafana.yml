@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  # Grafana
+  grafana:
+    image: grafana/grafana:11.5.4
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=Ocp@2026
+    volumes:
+      - ./kibana/data:/usr/share/kibana/data
+    # depends_on:
+    #   - elasticsearch
+    networks:
+      - elk
+
+networks:
+  elk:
+    driver: bridge

@@ -1,0 +1,1 @@
+docker run -d --name filebeat -v ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml -v ./logs:/logs --network=elk docker.elastic.co/beats/filebeat:8.13.4 filebeat -e -strict.perms=false
